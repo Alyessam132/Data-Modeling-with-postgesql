@@ -12,6 +12,15 @@ def process_song_file(cur, filepath):
     1.Extracting each song JSON File 
     2.Transforming this file into a data frame including choosing some columns for song_data and artist_data
     3.Loading song_data and artist_data into the songs and artists tables respectively
+    
+     Parameters
+    ----------
+    cur : 
+        Database cursor reference
+        
+    filepath : string
+        The file system path to song files
+        
     """
 
 
@@ -37,6 +46,15 @@ def process_log_file(cur, filepath):
     2.3. Making User_df from the required columns
     2.4. Making songplays_df from selecting song_id and artist_id from the database and loading some required columns from the dataframe
     3.Loading the required columns from the dataframe into the songs and artists tables
+    
+     Parameters
+    ----------
+    cur : 
+        Database cursor reference
+
+    filepath : string
+        The file system path to log files
+        
     """
     # open log file
     df = pd.read_json(filepath, lines=True)
@@ -89,6 +107,17 @@ def process_data(cur, conn, filepath, func):
     Getting all JSON files in the directory
     Getting total number of files found 
     Checking how many song and log files are processed
+    
+     Parameters
+    ----------
+    cur : 
+        Database cursor reference
+    conn:
+         Database connection reference
+    filepath : string
+        The file system path to JSON files
+    func : function
+        Function used to process files
     """
 
     # get all files matching extension from directory
