@@ -10,12 +10,12 @@ time_table_drop = ("""DROP TABLE  IF EXISTS time""")
 
 songplay_table_create = ("""
     CREATE TABLE IF NOT EXISTS songplays 
-    (songplay_id int PRIMARY KEY, 
-     start_time timestamp NOT NULL, 
-     user_id int NOT NULL, 
+    (songplay_id SERIAL PRIMARY KEY, 
+     start_time timestamp NOT NULL REFERENCES time(start_time), 
+     user_id int NOT NULL REFERENCES users(user_id), 
      level varchar, 
-     song_id varchar, 
-     artist_id varchar, 
+     song_id varchar REFERENCES songs(song_id), 
+     artist_id varchar REFERENCES artists(artist_id), 
      session_id int, 
      location varchar,
      user_agent varchar)
@@ -52,27 +52,28 @@ time_table_create = ("""
 CREATE TABLE IF NOT EXISTS time 
 (start_time timestamp PRIMARY KEY,
  hour int,
- day int ,
+ day int,
  week int,
  month int,
  year int,
- weekday varchar )
+ weekday varchar );
  """)
 
 # INSERT RECORDS
 
-songplay_table_insert = """INSERT INTO songplays VALUES
-(%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT(songplay_id) DO NOTHING"""
+songplay_table_insert = """INSERT INTO songplays (start_time,user_id,level, song_id, artist_id, session_id, location, user_agent)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+ON CONFLICT(songplay_id) DO NOTHING"""
 
 user_table_insert =  """
 INSERT INTO users 
 VALUES(%s, %s, %s, %s, %s) 
-ON CONFLICT(user_id) DO NOTHING
+ON CONFLICT(user_id) DO UPDATE
+SET level = EXCLUDED.level 
 """
 
 song_table_insert = """
-INSERT INTO songs 
-VALUES(%s, %s, %s, %s, %s) 
+INSERT INTO songs VALUES (%s, %s, %s, %s, %s) 
 ON CONFLICT(song_id) DO NOTHING
 """
 
@@ -103,5 +104,5 @@ AND s.duration = %s
 
 # QUERY LISTS
 
-create_table_queries = [songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
+create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
 drop_table_queries = [songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]

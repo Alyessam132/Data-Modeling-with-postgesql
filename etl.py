@@ -6,6 +6,15 @@ from sql_queries import *
 
 
 def process_song_file(cur, filepath):
+    
+
+    """ 
+    1.Extracting each song JSON File 
+    2.Transforming this file into a data frame including choosing some columns for song_data and artist_data
+    3.Loading song_data and artist_data into the songs and artists tables respectively
+    """
+
+
     # open song file
     df = pd.read_json(filepath, lines=True)
     song_data = df[['song_id','title','artist_id','year', 'duration']]
@@ -20,6 +29,15 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
+    """        
+    1.Extracting each log JSON File 
+    2.Transforming this file into a data frame including 
+    2.1. filtering by nextsong page
+    2.2. Making different time formats after converting the data int timestamp
+    2.3. Making User_df from the required columns
+    2.4. Making songplays_df from selecting song_id and artist_id from the database and loading some required columns from the dataframe
+    3.Loading the required columns from the dataframe into the songs and artists tables
+    """
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -61,11 +79,18 @@ def process_log_file(cur, filepath):
             songid, artistid = None, None
 
         # insert songplay record
-        songplay_data = (index, row.ts, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent )
+        songplay_data = (row.ts, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent )
         cur.execute(songplay_table_insert, songplay_data)
 
 
 def process_data(cur, conn, filepath, func):
+    
+    """
+    Getting all JSON files in the directory
+    Getting total number of files found 
+    Checking how many song and log files are processed
+    """
+
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -85,6 +110,11 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    
+    """
+    Connecting to sparkify database and making the ETL Process for the song and log files
+    """  
+
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
